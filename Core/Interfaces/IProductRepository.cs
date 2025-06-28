@@ -11,5 +11,7 @@ namespace Core.Interfaces
         void UpdateProduct(Product product);
         bool ProductExists(int id);
         Task<bool> SaveChangesAsync();
+        Task<IReadOnlyList<string>> GetProductBrandsAsync();
+        Task<IReadOnlyList<string>> GetProductTypesAsync();
     }
 }

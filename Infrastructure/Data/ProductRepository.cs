@@ -47,5 +47,15 @@ namespace Infrastructure.Data
         {
            _context.Entry(product).State = EntityState.Modified;
         }
+
+        public async Task<IReadOnlyList<string>> GetProductBrandsAsync()
+        {
+            return await _context.Products.Select(p => p.Brand).Distinct().ToListAsync();
+        }
+
+        public async Task<IReadOnlyList<string>> GetProductTypesAsync()
+        {
+            return await _context.Products.Select(p => p.Type).Distinct().ToListAsync();
+        }
     }
 }

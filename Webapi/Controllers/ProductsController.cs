@@ -80,6 +80,19 @@ namespace Webapi.Controllers
             return BadRequest("Problem deleting the product");
         }
 
+        [HttpGet("brands")]
+        public async Task<ActionResult<IReadOnlyList<string>>> GetBrands()
+        {
+            return Ok(await _repo.GetProductBrandsAsync());
+        }
+
+        [HttpGet("types")]
+        public async Task<ActionResult<IReadOnlyList<string>>> GetTypes()
+        {
+            return Ok(await _repo.GetProductTypesAsync());
+        }
+
+
         private bool ProductExists(int id)
         {
             return _repo.ProductExists(id);
