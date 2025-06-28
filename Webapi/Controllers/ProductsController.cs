@@ -10,9 +10,9 @@ namespace Webapi.Controllers
     [Route("api/[controller]")]
     public class ProductsController : ControllerBase
     {
-        private readonly IProductRepository _repo;
+        private readonly IGenericRepository<Product> _repo;
 
-        public ProductsController(IProductRepository repo)
+        public ProductsController(IGenericRepository<Product> repo)
         {
             _repo = repo;
         }
@@ -20,13 +20,13 @@ namespace Webapi.Controllers
         [HttpGet]
         public async Task<ActionResult<IReadOnlyList<Product>>> GetProducts(string? brand, string? type, string? sort)
         {
-            return Ok(await _repo.GetProductsAsync(brand, type, sort));
+            return Ok(await _repo.GetAllAsync());
         }
 
         [HttpGet("{id:int}")]
         public async Task<ActionResult<Product>> GetProduct(int id)
         {
-            var product = await _repo.GetProductByIdAsync(id);
+            var product = await _repo.GetByIdAsync(id);
             if (product == null) return NotFound();
             
             return product;
@@ -35,9 +35,9 @@ namespace Webapi.Controllers
         [HttpPost]
         public async Task<ActionResult<Product>> CreateProduct(Product product)
         {
-            _repo.AddProduct(product);
+            _repo.Add(product);
 
-            if(await _repo.SaveChangesAsync())
+            if(await _repo.SaveAllChangesAsync())
             {
                 return CreatedAtAction("GetProduct", new { id = product.Id }, product);
             }
@@ -53,9 +53,9 @@ namespace Webapi.Controllers
                 return NotFound();
             }
 
-            _repo.UpdateProduct(product);
+            _repo.Update(product);
 
-            if (await _repo.SaveChangesAsync())
+            if (await _repo.SaveAllChangesAsync())
             {
                 return NoContent();
             }
@@ -67,12 +67,12 @@ namespace Webapi.Controllers
         [HttpDelete("{id:int}")]
         public async Task<ActionResult> DeleteProduct(int id)
         {
-            var product = await _repo.GetProductByIdAsync(id);
+            var product = await _repo.GetByIdAsync(id);
             if (product == null) return NotFound();
 
-            _repo.DeleteProduct(product);
+            _repo.Remove(product);
 
-            if (await _repo.SaveChangesAsync())
+            if (await _repo.SaveAllChangesAsync())
             {
                 return NoContent();
             }
@@ -83,19 +83,21 @@ namespace Webapi.Controllers
         [HttpGet("brands")]
         public async Task<ActionResult<IReadOnlyList<string>>> GetBrands()
         {
-            return Ok(await _repo.GetProductBrandsAsync());
+            // TODO - Implement method
+            return Ok();
         }
 
         [HttpGet("types")]
         public async Task<ActionResult<IReadOnlyList<string>>> GetTypes()
         {
-            return Ok(await _repo.GetProductTypesAsync());
+            // TODO - Implement method
+            return Ok();
         }
 
 
         private bool ProductExists(int id)
         {
-            return _repo.ProductExists(id);
+            return _repo.Exists(id);
         }
 
     }
