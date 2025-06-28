@@ -18,9 +18,9 @@ namespace Webapi.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IReadOnlyList<Product>>> GetProducts()
+        public async Task<ActionResult<IReadOnlyList<Product>>> GetProducts(string? brand, string? type, string? sort)
         {
-            return Ok(await _repo.GetProductsAsync());
+            return Ok(await _repo.GetProductsAsync(brand, type, sort));
         }
 
         [HttpGet("{id:int}")]
