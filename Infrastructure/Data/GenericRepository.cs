@@ -48,5 +48,20 @@ namespace Infrastructure.Data
         {
             return _context.Set<T>().Any(x => x.Id == id);
         }
+
+        public async Task<IReadOnlyList<T>> GetListWithSpec(ISpecification<T> spec)
+        {
+            return await ApplySpecification(spec).ToListAsync();
+        }
+
+        public async Task<T?> GetByIdAsyncWithSpec(ISpecification<T> spec)
+        {
+           return await ApplySpecification(spec).FirstOrDefaultAsync();
+        }
+
+        private IQueryable<T> ApplySpecification(ISpecification<T> spec)
+        {
+            return SpecificationEvaluator<T>.GetQuery(_context.Set<T>().AsQueryable(), spec);
+        }
     }
 }

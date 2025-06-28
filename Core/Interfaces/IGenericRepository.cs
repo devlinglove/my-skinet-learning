@@ -8,6 +8,8 @@ namespace Core.Interfaces
     {
         Task<IReadOnlyList<T>> GetAllAsync();
         Task<T?> GetByIdAsync(int id);
+        Task<IReadOnlyList<T>> GetListWithSpec(ISpecification<T> spec);
+        Task<T?> GetByIdAsyncWithSpec(ISpecification<T> spec);
         void Add(T entity);
         void Update(T entity);
         void Remove(T entity);
