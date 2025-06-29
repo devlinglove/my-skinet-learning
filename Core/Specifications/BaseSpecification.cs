@@ -15,7 +15,7 @@ namespace Core.Specifications
 
         protected BaseSpecification() : this(null) { }
 
-        public Expression<Func<T, bool>>? Criteria => _criteria;
+        public Expression<Func<T, bool>>? Criteria { get; private set; }
 
         public Expression<Func<T, object>>? OrderBy {get; private set;}
 
@@ -31,6 +31,8 @@ namespace Core.Specifications
 
         public string SortOrder { get; private set; }
 
+        public Dictionary<string, string> QueryParams { get; private set; }
+
         public void AddOrderBy(Expression<Func<T, object>> orderBy)
         {
             OrderBy = orderBy;
@@ -44,6 +46,11 @@ namespace Core.Specifications
             }
 
             return query;
+        }
+
+        protected void ApplyDynamicFiltering(Dictionary<string, string> queryParams)
+        {
+            QueryParams = queryParams;
         }
 
         protected void AddOrderByDescending(Expression<Func<T, object>> orderByDesc)
@@ -63,5 +70,9 @@ namespace Core.Specifications
             IsPagingEnabled = true;
         }
 
+        public void SetDynamicCriteria(Expression<Func<T, bool>> criteria)
+        {
+            Criteria = criteria;
+        }
     }
 }

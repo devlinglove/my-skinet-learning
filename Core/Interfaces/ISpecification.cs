@@ -6,7 +6,7 @@ namespace Core.Interfaces
 {
     public interface ISpecification<T>
     {
-        Expression<Func<T, bool>>? Criteria { get; }
+        Expression<Func<T, bool>>? Criteria { get;  }
         Expression<Func<T, object>>? OrderBy { get; }
         Expression<Func<T, object>>? OrderByDescending { get; }
         int Skip { get; }
@@ -15,6 +15,10 @@ namespace Core.Interfaces
         string? SortColumn { get; }
         string? SortOrder { get; }
         IQueryable<T> ApplyCriteria(IQueryable<T> query);
+
+        public Dictionary<string, string> QueryParams { get; }
+
+        public void SetDynamicCriteria(Expression<Func<T, bool>> criteria);
 
 
     }

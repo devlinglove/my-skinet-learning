@@ -24,13 +24,43 @@ namespace Webapi.Controllers
         [HttpGet]
         public async Task<ActionResult<IReadOnlyList<Product>>> GetProducts([FromQuery] ProductSpecParams specParams)
         {
-            var prodSpec = new ProductSpecification(specParams);
+
+            var fullUrl = $"{Request.Scheme}://{Request.Host}{Request.Path}{Request.QueryString}";
+
+            var uri = new Uri(fullUrl);
+            //var baseUri = uri.GetComponents(UriComponents.Scheme | UriComponents.Host | UriComponents.Port | UriComponents.Path, UriFormat.UriEscaped);
+
+            var query = QueryHelpers.ParseQuery(uri.Query);
+            //var queryPage = QueryHelpers.ParseQuery(uri.Query);
+            var dictionary = query.ToDictionary(
+                kvp => kvp.Key,
+                kvp => kvp.Value.FirstOrDefault() ?? string.Empty
+            );
+
+           
+
+            var prodSpec = new ProductSpecification(specParams, dictionary);
             var products = await _repo.GetListWithSpec(prodSpec);
             var count = await _repo.CountAsync(prodSpec);
 
             var paginatedResult = new Pagination<Product>(count, products, specParams.PageSize, specParams.PageIndex);
 
             
+
+
+            //var items = query.SelectMany(x => x.Value, (col, value) => new KeyValuePair<string, string>(col.Key, value)).ToList();
+
+
+
+
+
+
+
+
+
+
+
+
             return Ok(paginatedResult);
         }
 

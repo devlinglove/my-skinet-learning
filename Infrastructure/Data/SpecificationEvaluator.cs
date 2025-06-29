@@ -14,6 +14,32 @@ namespace Infrastructure.Data
 
             }
 
+            if (spec.QueryParams.Count > 0)
+            {
+                var param = Expression.Parameter(typeof(T), "p");
+                if (spec.QueryParams.Count > 0)
+                {
+                    spec.QueryParams.Remove("pageIndex");
+                    spec.QueryParams.Remove("pageSize");
+                }
+        
+                Expression? body = null;
+                foreach (var pair in spec.QueryParams)
+                {
+                    var member = Expression.Property(param, pair.Key);
+                    var constant = Expression.Constant(pair.Value);
+                    var expression = Expression.Equal(member, constant);
+                    body = body == null ? expression : Expression.AndAlso(body, expression);
+                }
+
+                var lambda = Expression.Lambda<Func<T, bool>>(body, param);
+                spec.SetDynamicCriteria(lambda);
+
+                query = query.Where(lambda);
+
+            }
+
+
             if (spec.OrderBy != null)
             {
                 query = query.OrderBy(spec.OrderBy);
@@ -40,7 +66,9 @@ namespace Infrastructure.Data
                 query = query.Skip(spec.Skip).Take(spec.Take);
             }
 
-  
+            
+
+     
             return query;
         }
 
