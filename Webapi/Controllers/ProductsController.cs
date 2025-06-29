@@ -2,8 +2,11 @@
 using Core.Interfaces;
 using Core.Specifications;
 using Infrastructure.Data;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore;
+using Webapi.RequestHelpers;
 
 namespace Webapi.Controllers
 {
@@ -19,12 +22,16 @@ namespace Webapi.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IReadOnlyList<Product>>> GetProducts(string? brand, string? type, string? sort)
+        public async Task<ActionResult<IReadOnlyList<Product>>> GetProducts([FromQuery] ProductSpecParams specParams)
         {
-            var prodSpec = new ProductSpecification(brand, type, sort);
+            var prodSpec = new ProductSpecification(specParams);
+            var products = await _repo.GetListWithSpec(prodSpec);
+            var count = await _repo.CountAsync(prodSpec);
 
+            var paginatedResult = new Pagination<Product>(count, products, specParams.PageSize, specParams.PageIndex);
 
-            return Ok(await _repo.GetListWithSpec(prodSpec));
+            
+            return Ok(paginatedResult);
         }
 
         [HttpGet("{id:int}")]
