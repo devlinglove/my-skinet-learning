@@ -14,6 +14,10 @@ namespace Core.Interfaces
         bool IsPagingEnabled { get; }
         string? SortColumn { get; }
         string? SortOrder { get; }
+        public List<Expression<Func<T, object>>> Includes { get; }
+
+        public List<string> IncludeStrings { get; }
+
         IQueryable<T> ApplyCriteria(IQueryable<T> query);
 
         public Dictionary<string, string> QueryParams { get; }

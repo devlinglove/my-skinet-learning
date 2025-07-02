@@ -33,6 +33,11 @@ namespace Core.Specifications
 
         public Dictionary<string, string> QueryParams { get; private set; }
 
+        public List<Expression<Func<T, object>>> Includes { get; private set; } = [];
+
+
+        public List<string> IncludeStrings { get; private set; } = [];
+
         public void AddOrderBy(Expression<Func<T, object>> orderBy)
         {
             OrderBy = orderBy;
@@ -51,6 +56,16 @@ namespace Core.Specifications
         protected void ApplyDynamicFiltering(Dictionary<string, string> queryParams)
         {
             QueryParams = queryParams;
+        }
+
+        protected void AddInclude(Expression<Func<T, object>> expIncludes) 
+        { 
+            Includes.Add(expIncludes);
+        }
+
+        protected void AddInclude(string expInclude)
+        {
+            IncludeStrings.Add(expInclude);
         }
 
         protected void AddOrderByDescending(Expression<Func<T, object>> orderByDesc)

@@ -1,11 +1,12 @@
 ﻿using Core.Entities;
 using Core.Interfaces;
+using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 using System.Reflection;
 
 namespace Infrastructure.Data
 {
-    public class SpecificationEvaluator<T> where T : BaseEntity
+    public static class SpecificationEvaluator<T> where T : BaseEntity
     {
         public static IQueryable<T> GetQuery(IQueryable<T> query, ISpecification<T> spec) {
 
@@ -66,9 +67,10 @@ namespace Infrastructure.Data
                 query = query.Skip(spec.Skip).Take(spec.Take);
             }
 
-            
 
-     
+            query = spec.Includes.Aggregate(query, (current, incl) => current.Include(incl));
+            query = spec.IncludeStrings.Aggregate(query, (current, incl) => current.Include(incl));
+
             return query;
         }
 
