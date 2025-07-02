@@ -10,6 +10,9 @@ namespace Infrastructure.Data
         public StoreContext(DbContextOptions options) : base(options)
         {
         }
+
+
+
         public DbSet<Product> Products { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
