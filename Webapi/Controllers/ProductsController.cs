@@ -1,11 +1,8 @@
 ﻿using Core.Entities;
 using Core.Interfaces;
 using Core.Specifications;
-using Infrastructure.Data;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
-using Microsoft.EntityFrameworkCore;
 using Webapi.RequestHelpers;
 
 namespace Webapi.Controllers
@@ -14,11 +11,11 @@ namespace Webapi.Controllers
     [Route("api/[controller]")]
     public class ProductsController : ControllerBase
     {
-        private readonly IGenericRepository<Product> _repo;
+        private readonly IUnitOfWork _unit;
 
-        public ProductsController(IGenericRepository<Product> repo)
+        public ProductsController(IUnitOfWork unit)
         {
-            _repo = repo;
+            _unit = unit;
         }
 
         [HttpGet]
@@ -40,26 +37,12 @@ namespace Webapi.Controllers
            
 
             var prodSpec = new ProductSpecification(specParams, dictionary);
-            var products = await _repo.GetListWithSpec(prodSpec);
-            var count = await _repo.CountAsync(prodSpec);
+            var products = await _unit.Repository<Product>().GetListWithSpec(prodSpec);
+            var count = await _unit.Repository<Product>().CountAsync(prodSpec);
 
             var paginatedResult = new Pagination<Product>(count, products, specParams.PageSize, specParams.PageIndex);
 
-            
-
-
             //var items = query.SelectMany(x => x.Value, (col, value) => new KeyValuePair<string, string>(col.Key, value)).ToList();
-
-
-
-
-
-
-
-
-
-
-
 
             return Ok(paginatedResult);
         }
@@ -67,7 +50,7 @@ namespace Webapi.Controllers
         [HttpGet("{id:int}")]
         public async Task<ActionResult<Product>> GetProduct(int id)
         {
-            var product = await _repo.GetByIdAsync(id);
+            var product = await _unit.Repository<Product>().GetByIdAsync(id);
             if (product == null) return NotFound();
             
             return product;
@@ -76,9 +59,9 @@ namespace Webapi.Controllers
         [HttpPost]
         public async Task<ActionResult<Product>> CreateProduct(Product product)
         {
-            _repo.Add(product);
+            _unit.Repository<Product>().Add(product);
 
-            if(await _repo.SaveAllChangesAsync())
+            if(await _unit.Complete())
             {
                 return CreatedAtAction("GetProduct", new { id = product.Id }, product);
             }
@@ -94,9 +77,9 @@ namespace Webapi.Controllers
                 return NotFound();
             }
 
-            _repo.Update(product);
+            _unit.Repository<Product>().Update(product);
 
-            if (await _repo.SaveAllChangesAsync())
+            if (await _unit.Complete())
             {
                 return NoContent();
             }
@@ -108,12 +91,12 @@ namespace Webapi.Controllers
         [HttpDelete("{id:int}")]
         public async Task<ActionResult> DeleteProduct(int id)
         {
-            var product = await _repo.GetByIdAsync(id);
+            var product = await _unit.Repository<Product>().GetByIdAsync(id);
             if (product == null) return NotFound();
 
-            _repo.Remove(product);
+            _unit.Repository<Product>().Remove(product);
 
-            if (await _repo.SaveAllChangesAsync())
+            if (await _unit.Complete())
             {
                 return NoContent();
             }
@@ -138,7 +121,7 @@ namespace Webapi.Controllers
 
         private bool ProductExists(int id)
         {
-            return _repo.Exists(id);
+            return _unit.Repository<Product>().Exists(id);
         }
 
     }

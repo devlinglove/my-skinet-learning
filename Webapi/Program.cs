@@ -2,6 +2,7 @@ using Core.Interfaces;
 using FluentValidation;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
+using StackExchange.Redis;
 using Webapi;
 using Webapi.DTOs;
 using Webapi.Middlewares;
@@ -23,6 +24,15 @@ builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 builder.Services.AddScoped<IValidator<CreateProductDto>, CreateProductDtoValidtor>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+builder.Services.AddSingleton<IConnectionMultiplexer>(config =>
+{
+    var connectionString = builder.Configuration.GetConnectionString("Redis") ?? throw new Exception("Could not get connection string of redis");
+    var parseConnString = ConfigurationOptions.Parse(connectionString);
+
+    return ConnectionMultiplexer.Connect(parseConnString);
+
+});
 
 var app = builder.Build();
 
